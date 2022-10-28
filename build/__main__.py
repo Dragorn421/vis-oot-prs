@@ -38,8 +38,46 @@ with (out_dir / "index.html").open("w") as f:
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+<style>
+#load-in-progress {
+    width: 90vw;
+    font-size: 10vh;
+}
+@keyframes flashgently {
+  from {
+    background-color: silver;
+  }
+  to {
+    background-color: slategray;
+  }
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+    height: 0;
+  }
+  to {
+    opacity: 1;
+    height: 90vh;
+  }
+}
+.load-in-progress-loading {
+    opacity: 0;
+    height: 0;
+    animation-delay: 0.5s, 0.3s;
+    animation-duration: 1.1s, 0.6s;
+    animation-name: flashgently, fadein;
+    animation-fill-mode: none, forwards;
+    animation-iteration-count: infinite, 1;
+    animation-direction: alternate;
+}
+.load-in-progress-done {
+    display: none;
+}
+</style>
 </head>
 <body style="background-color: silver;">
+<div id="load-in-progress" class="load-in-progress-loading">Load in progress</div>
 <span style="font-weight: bold;">State of OoT PRs, approvals-wise</span>
 (see buttons and hints below)
 - Currently showing: <span id="currently-showing"></span>
@@ -181,6 +219,15 @@ var visprsgraph_src = {
     set_ignore_author();
     """
     )
-    f.write("</script>\n</body>")
+    f.write("""</script>"
+<script>
+function loadDone() {
+    document.getElementById("load-in-progress")
+        .classList.add("load-in-progress-done");
+}
+//setTimeout(loadDone, 100);
+loadDone();
+</script>
+</body>""")
 
 print(__file__, "OK")
