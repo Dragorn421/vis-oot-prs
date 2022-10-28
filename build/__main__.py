@@ -48,10 +48,23 @@ with (out_dir / "index.html").open("w") as f:
         ("g_needlead_noauthors", "Needs lead approval (without authors)"),
     ):
         f.write(
-            f"""<button onclick="setrenderedgdot({var_name_base}_main, {var_name_base}_key)">{html.escape(msg)}</button>"""
+            f"""<button onclick="setgraphkind('{var_name_base}')">{html.escape(msg)}</button>"""
         )
     f.write(
         """
+<label for="ignore-author">Ignore PRs by:</label>
+<select id="ignore-author" onchange="set_ignore_author()">
+<option value="">- nobody</option>
+"""
+    )
+
+    authors = list(set(pr.author.login for pr in prs))
+
+    for author in authors:
+        f.write(f"""<option value="{author}">{author}</option>""")
+    f.write(
+        """
+</select>
 <div id="graph-key" style="background-color: white; text-align: center; width: 90vw; height: 10vh;"></div>
 <div>Hints: PR nodes can be clicked.
 - Click the buttons for viewing different graphs.
@@ -61,8 +74,13 @@ with (out_dir / "index.html").open("w") as f:
 - The colored rectangles in PR nodes correspond to labels.</div>
 """
     )
-    f.write("<script>\n")
-    for var_name_base, gp in (
+    f.write(
+        """
+<script>
+var visprsgraph_src = {
+"""
+    )
+    for key, gp in (
         (
             "g_needcontrib_authors",
             graph.GraphParams.if_label_contains("Needs contributor"),
@@ -82,12 +100,21 @@ with (out_dir / "index.html").open("w") as f:
             graph.GraphParams.if_label_contains("Needs lead", show_authors=False),
         ),
     ):
+        f.write(key + " : {\n")
         gmain, gkey = graph.make_graph(prs, gp)
-        for var_name, g in (
-            (var_name_base + "_main", gmain),
-            (var_name_base + "_key", gkey),
-        ):
-            f.write(var_name + " = atob('" + btoa(g.source) + "');\n")
+        f.write(f"    '': [atob('{btoa(gmain.source)}'), atob('{btoa(gkey.source)}')],")
+        get_show_pr_ini = gp.get_show_pr
+        for author in authors:
+            gp.get_show_pr = lambda pr: (
+                pr.author.login != author and get_show_pr_ini(pr)
+            )
+            gmain, gkey = graph.make_graph(prs, gp)
+            gp.get_show_pr = get_show_pr_ini
+            f.write(
+                f"    '{author}': [atob('{btoa(gmain.source)}'), atob('{btoa(gkey.source)}')],"
+            )
+        f.write("},\n")
+    f.write("};\n")
     f.write(
         """
     var t = d3.transition()
@@ -112,7 +139,23 @@ with (out_dir / "index.html").open("w") as f:
         d3.select("#graph").graphviz().renderDot(gdot);
         d3.select("#graph-key").graphviz().renderDot(gdotkey);
     }
-    setrenderedgdot(g_needcontrib_noauthors_main, g_needcontrib_noauthors_key);
+    function updaterenderedgdot() {
+        var gpair = visprsgraph_src[window.visprsgraph_key][window.visprsgraph_ignoredauthorkey];
+        var gdot = gpair[0];
+        var gdotkey = gpair[1];
+        setrenderedgdot(gdot, gdotkey);
+    }
+    function setgraphkind(key) {
+        window.visprsgraph_key = key;
+        updaterenderedgdot();
+    }
+    function set_ignore_author() {
+        var selectElem = document.getElementById("ignore-author");
+        window.visprsgraph_ignoredauthorkey = selectElem.value;
+        updaterenderedgdot();
+    }
+    window.visprsgraph_key = "g_needcontrib_noauthors";
+    set_ignore_author();
     """
     )
     f.write("</script>\n</body>")
