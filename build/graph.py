@@ -9,16 +9,16 @@ from .data import PR, User, Label
 
 @dataclass
 class GraphParams:
-    PR_NODE_STYLE = "none"  # wedged, sober, none
+    pr_node_style: str = "none"  # wedged, sober, none
 
     get_show_pr: Callable[[PR], bool] = lambda pr: True
     get_show_label: Callable[[PR, Label], bool] = lambda pr, label: True
     get_show_label_links: Callable[[Label], bool] = lambda label: False
     get_show_approval: Callable[[PR, User], bool] = lambda pr, user: True
 
-    SHOW_LABELS = False
-    SHOW_AUTHORS = True
-    SHOW_APPROVALS = True
+    show_labels: bool = False
+    show_authors: bool = True
+    show_approvals: bool = True
 
     @staticmethod
     def if_label_contains(label_name_frag):
@@ -29,10 +29,10 @@ class GraphParams:
             return label_name_frag in label.name
 
         return GraphParams(
-            PR_NODE_STYLE="sober",
+            pr_node_style="sober",
             get_show_pr=get_show_pr,
             get_show_label_links=get_show_label_links,
-            SHOW_LABELS=True,
+            show_labels=True,
         )
 
 
@@ -64,7 +64,7 @@ def make_graph(prs: list[PR], gp: GraphParams):
             labels.add(label)
 
     for label in labels:
-        if gp.SHOW_LABELS:
+        if gp.show_labels:
             if gp.get_show_label_links(label):
                 nodes[label] = f"Label {label.name}"
                 g.node(
@@ -84,9 +84,9 @@ def make_graph(prs: list[PR], gp: GraphParams):
     users: set[User] = set()
 
     for pr in prs:
-        if gp.SHOW_AUTHORS:
+        if gp.show_authors:
             users.add(pr.author)
-        if gp.SHOW_APPROVALS:
+        if gp.show_approvals:
             for user in pr.approved_by:
                 users.add(user)
 
@@ -137,7 +137,7 @@ def make_graph(prs: list[PR], gp: GraphParams):
             )
         )
 
-        if gp.PR_NODE_STYLE == "wedged":
+        if gp.pr_node_style == "wedged":
             if len(pr.labels) == 0:
                 pass
             elif len(pr.labels) == 1:
@@ -159,7 +159,7 @@ def make_graph(prs: list[PR], gp: GraphParams):
                 f"#{pr.id}\\n{word_wrap(pr.name)}",
                 **attrs,
             )
-        elif gp.PR_NODE_STYLE == "sober":
+        elif gp.pr_node_style == "sober":
             g.node(
                 nodes[pr],
                 "<"
@@ -197,17 +197,17 @@ def make_graph(prs: list[PR], gp: GraphParams):
                 fillcolor="beige",
                 **attrs,
             )
-        elif gp.PR_NODE_STYLE == "none":
+        elif gp.pr_node_style == "none":
             g.node(
                 nodes[pr],
                 f"#{pr.id}\\n{word_wrap(pr.name)}",
                 **attrs,
             )
         else:
-            assert False, gp.PR_NODE_STYLE
+            assert False, gp.pr_node_style
 
         for label in pr.labels:
-            if gp.SHOW_LABELS:
+            if gp.show_labels:
                 if gp.get_show_label_links(label):
                     g.edge(
                         nodes[label],
@@ -215,7 +215,7 @@ def make_graph(prs: list[PR], gp: GraphParams):
                         color=label.color,
                     )
 
-        if gp.SHOW_AUTHORS:
+        if gp.show_authors:
             g.edge(
                 nodes[pr.author],
                 nodes[pr],
@@ -223,19 +223,19 @@ def make_graph(prs: list[PR], gp: GraphParams):
             )
 
         for user in pr.approved_by:
-            if gp.SHOW_APPROVALS:
+            if gp.show_approvals:
                 g.edge(
                     nodes[pr],
                     nodes[user],
                     color="darkgreen",
                 )
 
-    if gp.SHOW_AUTHORS:
+    if gp.show_authors:
         gkey.node("PR 1", "PR")
         gkey.node("User 1", "User", style="filled", fillcolor="lightgray")
         gkey.edge("User 1", "PR 1", label="Opened By", color="purple")
 
-    if gp.SHOW_APPROVALS:
+    if gp.show_approvals:
         gkey.node("PR 2", "PR")
         gkey.node("User 2", "User", style="filled", fillcolor="lightgray")
         gkey.edge("PR 2", "User 2", label="Approved", color="darkgreen")

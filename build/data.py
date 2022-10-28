@@ -72,3 +72,23 @@ def download_pr_list(personal_access_token, repo):
         )
 
     return prs
+
+
+def get_cached_pr_list(personal_access_token, repo) -> list[PR]:
+    from pathlib import Path
+    import pickle
+
+    cached_file = Path("cache.pickle")
+
+    if not cached_file.exists():
+        data = download_pr_list(personal_access_token, repo)
+
+        with cached_file.open("wb") as f:
+            pickle.dump(data, f)
+
+        return data
+    else:
+        with cached_file.open("rb") as f:
+            data = pickle.load(f)
+
+        return data

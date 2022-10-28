@@ -1,20 +1,31 @@
 import base64
-import sys
+import argparse
 from pathlib import Path
-import html
 
 from . import data
 from . import graph
 
-print(sys.argv)
+parser = argparse.ArgumentParser()
+parser.add_argument("--out")
+parser.add_argument("--token")
+parser.add_argument("--cache", action="store_true")
+args = parser.parse_args()
 
-runner_temp_dir = Path(sys.argv[1])
+out_dir = Path(args.out)
 
-prs = data.download_pr_list(sys.argv[2], "zeldaret/oot")
+print("download_pr_list...")
+if args.cache:
+    prs = data.get_cached_pr_list(args.token, "zeldaret/oot")
+else:
+    prs = data.download_pr_list(args.token, "zeldaret/oot")
+print("download_pr_list OK")
+
 gp = graph.GraphParams.if_label_contains("Needs contributor")
+print("make_graph...")
 g, gkey = graph.make_graph(prs, gp)
+print("make_graph OK")
 
-with (runner_temp_dir / "index.html").open("w") as f:
+with (out_dir / "index.html").open("w") as f:
     f.write("Hello from python")
 
     f.write(
@@ -31,9 +42,11 @@ with (runner_temp_dir / "index.html").open("w") as f:
 
 d3.select("#graph").graphviz()
     .renderDot(atob('"""
-        + base64.encodebytes(g.source)
+        + base64.encodebytes(g.source.encode()).decode().replace("\n", "").replace("\r", "")
         + """'));
 
 </script>
     """
     )
+
+print(__file__, "OK")
