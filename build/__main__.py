@@ -38,7 +38,9 @@ with (out_dir / "index.html").open("w") as f:
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 </head>
 <body style="background-color: silver;">
-<span style="font-weight: bold;">State of OoT PRs, approvals-wise</span> (see buttons and hints below)
+<span style="font-weight: bold;">State of OoT PRs, approvals-wise</span>
+(see buttons and hints below)
+- Currently showing: <span id="currently-showing"></span>
 <div id="graph" style="display: inline-block; background-color: white; text-align: center;"></div>
 """
     )
@@ -145,6 +147,24 @@ var visprsgraph_src = {
         var gdot = gpair[0];
         var gdotkey = gpair[1];
         setrenderedgdot(gdot, gdotkey);
+
+        var curShowingText = "";
+        if (window.visprsgraph_key == "g_needcontrib_noauthors"
+         || window.visprsgraph_key == "g_needcontrib_authors")
+            curShowingText += " PRs requiring approvals from contributors";
+        if (window.visprsgraph_key == "g_needlead_noauthors"
+         || window.visprsgraph_key == "g_needlead_authors")
+            curShowingText += " PRs requiring approvals from leads";
+        if (window.visprsgraph_ignoredauthorkey != "")
+            curShowingText += " (ignoring PRs by " + window.visprsgraph_ignoredauthorkey + ")";
+        if (window.visprsgraph_key == "g_needcontrib_noauthors"
+         || window.visprsgraph_key == "g_needlead_noauthors")
+            curShowingText += " (not showing authors of PRs)";
+        else
+            curShowingText += " (showing authors of PRs)";
+
+        var curShowing = document.getElementById("currently-showing");
+        curShowing.innerText = curShowingText;
     }
     function setgraphkind(key) {
         window.visprsgraph_key = key;
