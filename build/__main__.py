@@ -38,7 +38,7 @@ with (out_dir / "index.html").open("w") as f:
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 </head>
 <body style="background-color: silver;">
-<div id="graph" style="background-color: white; text-align: center; width: 90vw; height: 80vh;"></div>
+<div id="graph" style="background-color: white; text-align: center;"></div>
 """
     )
     for var_name_base, msg in (
@@ -65,7 +65,7 @@ with (out_dir / "index.html").open("w") as f:
     f.write(
         """
 </select>
-<div id="graph-key" style="background-color: white; text-align: center; width: 90vw; height: 10vh;"></div>
+<div id="graph-key" style="background-color: white; text-align: center;"></div>
 <div><span style="font-weight: bold;">Hints:</span> PR nodes can be clicked.
 - Click the buttons for viewing different graphs.
 - The view can be panned by left clicking and zoomed by scrolling inside the white area.
@@ -123,18 +123,16 @@ var visprsgraph_src = {
         .duration(1000)
         .ease(d3.easeLinear);
 
-    var graphElem = document.getElementById("graph");
     d3.select("#graph").graphviz()
         .engine("fdp")
-        .width(graphElem.clientWidth).height(graphElem.clientHeight)
+        .width(window.innerWidth*0.9).height(window.innerHeight*0.8)
         .fit(true)
         .tweenPrecision("1%")
         .transition(t);
 
-    var graphElem = document.getElementById("graph-key");
     d3.select("#graph-key").graphviz()
         .engine("dot")
-        .width(graphElem.clientWidth).height(graphElem.clientHeight)
+        .width(window.innerWidth*0.9).height(window.innerHeight*0.1)
         .fit(true);
 
     function setrenderedgdot(gdot, gdotkey) {
