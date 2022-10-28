@@ -21,7 +21,7 @@ class GraphParams:
     show_approvals: bool = True
 
     @staticmethod
-    def if_label_contains(label_name_frag):
+    def if_label_contains(label_name_frag, show_authors=show_authors):
         def get_show_pr(pr: PR):
             return any(label_name_frag in label.name for label in pr.labels)
 
@@ -33,6 +33,7 @@ class GraphParams:
             get_show_pr=get_show_pr,
             get_show_label_links=get_show_label_links,
             show_labels=True,
+            show_authors=show_authors,
         )
 
 
