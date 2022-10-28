@@ -10,7 +10,7 @@ print(sys.argv)
 
 runner_temp_dir = Path(sys.argv[1])
 
-prs = data.download_pr_list(sys.argv[2])
+prs = data.download_pr_list(sys.argv[2], "zeldaret/oot")
 gp = graph.GraphParams.if_label_contains("Needs contributor")
 g, gkey = graph.make_graph(prs, gp)
 
