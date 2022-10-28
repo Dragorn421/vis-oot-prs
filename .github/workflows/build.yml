@@ -33,7 +33,7 @@ jobs:
         
       # Runs a set of commands using the runners shell
       - name: tar archive
-        run: tar --create --file ${{ runner.temp }}/artifact.tar index.html
+        run: tar --create --file ${{ runner.temp }}/artifact.tar ${{ runner.temp }}/index.html
         
       - name: upload artifact
         uses: actions/upload-artifact@main
