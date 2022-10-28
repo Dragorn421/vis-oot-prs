@@ -28,7 +28,7 @@ jobs:
           pwd
           mkdir -p _site/
           pip install PyGithub graphviz
-          python3 build.py _site/ ${{ secrets.GITHUB_TOKEN }}
+          python3 -m build _site/ ${{ secrets.GITHUB_TOKEN }}
         
       - name: upload pages artifact
         uses: actions/upload-pages-artifact@main
