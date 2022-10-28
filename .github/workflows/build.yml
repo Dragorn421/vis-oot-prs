@@ -27,7 +27,7 @@ jobs:
         run: |
           pwd
           mkdir -p _site/
-          pip install PyGithub
+          pip install PyGithub graphviz
           python3 test.py _site/ ${{ secrets.GITHUB_TOKEN }}
         
       - name: upload pages artifact
