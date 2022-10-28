@@ -29,7 +29,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
-        run: python3 test.py
+        run: python3 test.py ${{ runner.temp }}
         
       # Runs a set of commands using the runners shell
       - name: tar archive
