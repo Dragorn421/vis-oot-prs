@@ -6,6 +6,11 @@ from pathlib import Path
 from . import data
 from . import graph
 
+
+def btoa(s: str):
+    return base64.encodebytes(s.encode()).decode().replace("\n", "").replace("\r", "")
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--out")
 parser.add_argument("--token")
@@ -82,15 +87,7 @@ with (out_dir / "index.html").open("w") as f:
             (var_name_base + "_main", gmain),
             (var_name_base + "_key", gkey),
         ):
-            f.write(
-                var_name
-                + " = atob('"
-                + base64.encodebytes(g.source.encode())
-                .decode()
-                .replace("\n", "")
-                .replace("\r", "")
-                + "');\n"
-            )
+            f.write(var_name + " = atob('" + btoa(g.source) + "');\n")
     f.write(
         """
     var t = d3.transition()
