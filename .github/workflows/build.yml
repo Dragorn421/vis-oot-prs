@@ -26,6 +26,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           pwd
+          python3 --version
           mkdir -p _site/
           pip install PyGithub graphviz
           python3 -m build _site/ ${{ secrets.GITHUB_TOKEN }}
