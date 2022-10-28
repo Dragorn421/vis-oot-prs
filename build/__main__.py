@@ -219,7 +219,7 @@ var visprsgraph_src = {
     set_ignore_author();
     """
     )
-    f.write("""</script>"
+    f.write("""</script>
 <script>
 function loadDone() {
     document.getElementById("load-in-progress")
