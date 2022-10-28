@@ -26,6 +26,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           pwd
+          mkdir -p _site/
           python3 test.py _site/
         
       - name: upload pages artifact
