@@ -27,7 +27,8 @@ jobs:
         run: |
           pwd
           mkdir -p _site/
-          python3 test.py _site/
+          pip install PyGithub
+          python3 test.py _site/ ${{ secrets.GITHUB_TOKEN }}
         
       - name: upload pages artifact
         uses: actions/upload-pages-artifact@main
