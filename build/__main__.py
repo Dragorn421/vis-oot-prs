@@ -66,12 +66,14 @@ with (out_dir / "index.html").open("w") as f:
         """
 </select>
 <div id="graph-key" style="background-color: white; text-align: center; width: 90vw; height: 10vh;"></div>
-<div>Hints: PR nodes can be clicked.
+<div><span style="font-weight: bold;">Hints:</span> PR nodes can be clicked.
 - Click the buttons for viewing different graphs.
 - The view can be panned by left clicking and zoomed by scrolling inside the white area.
 - Buttons can be clicked again to recompute the graph layout.
 - The small view above is the legend.
-- The colored rectangles in PR nodes correspond to labels.</div>
+- The colored rectangles in PR nodes correspond to labels.
+- There is a list to exclude PRs by one person.
+</div>
 """
     )
     f.write(
