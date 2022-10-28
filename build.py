@@ -1,26 +1,21 @@
+import base64
 import sys
 from pathlib import Path
-
-import github
-import graphviz
 import html
+
+from . import data
+from . import graph
 
 print(sys.argv)
 
 runner_temp_dir = Path(sys.argv[1])
 
-g = github.Github(sys.argv[2])
+prs = data.download_pr_list(sys.argv[2])
+gp = graph.GraphParams.if_label_contains("Needs contributor")
+g, gkey = graph.make_graph(prs, gp)
 
 with (runner_temp_dir / "index.html").open("w") as f:
     f.write("Hello from python")
-
-    repo = g.get_repo("zeldaret/oot")
-    f.write(repo.full_name)
-    f.write(repo.description)
-
-    gr = graphviz.Digraph()
-
-    f.write("<pre>" + html.escape(gr.source) + "</pre>")
 
     f.write(
         ""  #    """<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-graphviz/4.4.0/d3-graphviz.min.js" integrity="sha512-T6HYgCVKXsFOabAI/rq1eNK4ATO2u3ziaOuPGLrHNf11UBROtR4f3fOKrZzyej79DuttNbW80U/XMcQ+u09NQg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>"""
@@ -35,7 +30,9 @@ with (runner_temp_dir / "index.html").open("w") as f:
 <script>
 
 d3.select("#graph").graphviz()
-    .renderDot('digraph  {a -> b}');
+    .renderDot(atob('"""
+        + base64.encodebytes(g.source)
+        + """'));
 
 </script>
     """
