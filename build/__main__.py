@@ -1,5 +1,6 @@
 import base64
 import argparse
+import html
 from pathlib import Path
 
 from . import data
@@ -33,22 +34,41 @@ with (out_dir / "index.html").open("w") as f:
 </head>
 <body style="background-color: silver;">
 <div id="graph" style="background-color: white; text-align: center; width: 90vw; height: 80vh;"></div>
-<button onclick="setrenderedgdot(gvar1_main, gvar1_key)">Show authors as well</button>
-<button onclick="setrenderedgdot(gvar2_main, gvar2_key)">Don't show authors</button>
+"""
+    )
+    for var_name_base, msg in (
+        ("g_needcontrib_authors", "Needs contributor approval (with authors)"),
+        ("g_needcontrib_noauthors", "Needs contributor approval (without authors)"),
+        ("g_needlead_authors", "Needs lead approval (with authors)"),
+        ("g_needlead_noauthors", "Needs lead approval (without authors)"),
+    ):
+        f.write(
+            f"""<button onclick="setrenderedgdot({var_name_base}_main, {var_name_base}_key)">{html.escape(msg)}</button>"""
+        )
+    f.write(
+        """
 <div id="graph-key" style="background-color: white; text-align: center; width: 90vw; height: 10vh;"></div>
 """
     )
     f.write("<script>\n")
     for var_name_base, gp in (
         (
-            "gvar1",
+            "g_needcontrib_authors",
             graph.GraphParams.if_label_contains("Needs contributor"),
         ),
         (
-            "gvar2",
+            "g_needcontrib_noauthors",
             graph.GraphParams.if_label_contains(
                 "Needs contributor", show_authors=False
             ),
+        ),
+        (
+            "g_needlead_authors",
+            graph.GraphParams.if_label_contains("Needs lead"),
+        ),
+        (
+            "g_needlead_noauthors",
+            graph.GraphParams.if_label_contains("Needs lead", show_authors=False),
         ),
     ):
         gmain, gkey = graph.make_graph(prs, gp)
@@ -89,7 +109,7 @@ with (out_dir / "index.html").open("w") as f:
         d3.select("#graph").graphviz().renderDot(gdot);
         d3.select("#graph-key").graphviz().renderDot(gdotkey);
     }
-    setrenderedgdot(gvar2_main, gvar2_key);
+    setrenderedgdot(g_needcontrib_noauthors_main, g_needcontrib_noauthors_key);
     """
     )
     f.write("</script>\n</body>")
