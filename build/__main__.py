@@ -38,7 +38,8 @@ with (out_dir / "index.html").open("w") as f:
 <script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
 </head>
 <body style="background-color: silver;">
-<div id="graph" style="background-color: white; text-align: center;"></div>
+<span style="font-weight: bold;">State of OoT PRs, approvals-wise</span> (see buttons and hints below)
+<div id="graph" style="display: inline-block; background-color: white; text-align: center;"></div>
 """
     )
     for var_name_base, msg in (
@@ -65,11 +66,11 @@ with (out_dir / "index.html").open("w") as f:
     f.write(
         """
 </select>
-<div id="graph-key" style="background-color: white; text-align: center;"></div>
+<div id="graph-key" style="display: inline-block; background-color: white; text-align: center;"></div>
 <div><span style="font-weight: bold;">Hints:</span> PR nodes can be clicked.
 - Click the buttons for viewing different graphs.
 - The view can be panned by left clicking and zoomed by scrolling inside the white area.
-- Buttons can be clicked again to recompute the graph layout.
+- A new layout can be made by clicking the same button again.
 - The small view above is the legend.
 - The colored rectangles in PR nodes correspond to labels.
 - There is a list to exclude PRs by one person.
@@ -125,7 +126,7 @@ var visprsgraph_src = {
 
     d3.select("#graph").graphviz()
         .engine("fdp")
-        .width(window.innerWidth*0.9).height(window.innerHeight*0.8)
+        .width(window.innerWidth*0.9).height(window.innerHeight*0.75)
         .fit(true)
         .tweenPrecision("1%")
         .transition(t);
