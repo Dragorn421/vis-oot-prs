@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Unlicense
+
 import base64
 import argparse
 import html

@@ -4,6 +4,8 @@ Visualize OoT PRs https://dragorn421.github.io/vis-oot-prs/
 
 This helps seeing what's going on in the zeldaret/oot repo's PRs
 
+This whole repo is licensed under the Unlicense, see LICENSE.
+
 ## How it works
 
 (disclaimer: the code in `__main__.py` looks really bad)

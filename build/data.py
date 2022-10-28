@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Unlicense
+
 from dataclasses import dataclass
 
 from github import Github

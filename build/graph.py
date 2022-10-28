@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Unlicense
+
 from dataclasses import dataclass
 import html
 from typing import Any, Callable
