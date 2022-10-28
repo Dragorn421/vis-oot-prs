@@ -2,6 +2,12 @@
 
 name: Build
 
+inputs:
+  site_contents_path:
+    description: "Path of the directory containing the static assets."
+    required: true
+    default: "_site/"
+
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -23,30 +29,15 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           pwd
-          python3 test.py ${{ runner.temp }}
+          python3 test.py ${{ inputs.site_contents_path }}
         
-      # Runs a set of commands using the runners shell
-      - name: tar archive
-        run: |
-          pwd
-          cd ${{ runner.temp }}
-          pwd
-          tar --create --file artifact.tar index.html
-        
-      - name: upload artifact
-        uses: actions/upload-artifact@main
+      - name: upload pages artifact
+        uses: actions/upload-pages-artifact@main
         with:
-          name: github-pages
-          path: ${{ runner.temp }}/artifact.tar
-          retention-days: ${{ inputs.retention-days }}
+          path: ${{ inputs.site_contents_path }}
 
   # Deploy job
   deploy:
