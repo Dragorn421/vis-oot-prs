@@ -2,12 +2,6 @@
 
 name: Build
 
-inputs:
-  site_contents_path:
-    description: "Path of the directory containing the static assets."
-    required: true
-    default: "_site/"
-
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -32,12 +26,12 @@ jobs:
       - name: Run a multi-line script
         run: |
           pwd
-          python3 test.py ${{ inputs.site_contents_path }}
+          python3 test.py _site/
         
       - name: upload pages artifact
         uses: actions/upload-pages-artifact@main
         with:
-          path: ${{ inputs.site_contents_path }}
+          path: _site/
 
   # Deploy job
   deploy:
