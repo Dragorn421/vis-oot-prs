@@ -22,10 +22,19 @@ class GraphParams:
     show_authors: bool = True
     show_approvals: bool = True
 
+    description: str = ""
+
     @staticmethod
     def if_label_contains(label_name_frag, show_authors=show_authors):
         def get_show_pr(pr: PR):
-            return any(label_name_frag in label.name for label in pr.labels)
+            if label_name_frag:
+                return any(label_name_frag in label.name for label in pr.labels)
+            else:
+                # otherwise if label_name_frag == ""
+                # and pr.labels is empty (PR has no labels),
+                # we would return False
+                # but it makes more sense to return True when label_name_frag == ""
+                return True
 
         def get_show_label_links(label: Label):
             return label_name_frag in label.name
@@ -36,10 +45,11 @@ class GraphParams:
             get_show_label_links=get_show_label_links,
             show_labels=True,
             show_authors=show_authors,
+            description=f"if_label_contains({label_name_frag!r}, show_authors={show_authors})"
         )
 
 
-def make_graph(prs: list[PR], gp: GraphParams):
+def make_graph(prs_all: list[PR], gp: GraphParams):
 
     prs = [
         PR(
@@ -51,9 +61,11 @@ def make_graph(prs: list[PR], gp: GraphParams):
                 user for user in pr.approved_by if gp.get_show_approval(pr, user)
             ),
         )
-        for pr in prs
+        for pr in prs_all
         if gp.get_show_pr(pr)
     ]
+
+    print(gp.description, len(prs_all), "->", len(prs), "PRs")
 
     g = graphviz.Digraph()
     gkey = graphviz.Digraph()

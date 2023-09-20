@@ -30,7 +30,12 @@ the graph layout happens in the browser (graphviz runs in the client browser)
 
 ## Run locally
 
+(optional) Create and activate a virtual environment: `python3 -m venv .venv && . .venv/bin/activate`
+
+Dependencies: `pip install -r requirements.txt`
+
 A personal access token is needed (no specific permission required)
+(see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens / https://github.com/settings/personal-access-tokens/new )
 
 Run the build package (`python3 -m build`)
 

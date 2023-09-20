@@ -35,7 +35,7 @@ jobs:
           pwd
           python3 --version
           mkdir -p _site/
-          pip install PyGithub graphviz
+          pip install -r requirements.txt
           python3 -m build --out _site/ --token ${{ secrets.GITHUB_TOKEN }}
         
       - name: upload pages artifact

@@ -13,6 +13,26 @@ def btoa(s: str):
     return base64.encodebytes(s.encode()).decode().replace("\n", "").replace("\r", "")
 
 
+# set to True to write generated graphs dot source in dump_dot/
+# (for debugging purposes)
+DUMP_GRAPH_DOT_SRC = False
+
+
+def dump_dot(key: str, excluding_author: str | None, graph_dot_src: str):
+    if DUMP_GRAPH_DOT_SRC:
+        dump_src_p = (
+            Path("dump_dot")
+            / key
+            / (
+                f"excl_{excluding_author}.dot"
+                if excluding_author is not None
+                else "all.dot"
+            )
+        )
+        dump_src_p.parent.mkdir(parents=True, exist_ok=True)
+        dump_src_p.write_text(graph_dot_src)
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--out")
 parser.add_argument("--token")
@@ -27,6 +47,8 @@ if args.cache:
 else:
     prs = data.download_pr_list(args.token, "zeldaret/oot")
 print("download_pr_list OK")
+print(f"{len(prs)=}")
+print("prs =", prs)
 
 with (out_dir / "index.html").open("w") as f:
     f.write("<!-- Hello from python -->")
@@ -126,35 +148,43 @@ var visprsgraph_src = {
 """
     )
     for key, gp in (
+        # TODO passing "" (empty string) for the label check,
+        # as a temporary workaround for the label names and merge requirements
+        # having changed
         (
             "g_needcontrib_authors",
-            graph.GraphParams.if_label_contains("Needs contributor"),
+            graph.GraphParams.if_label_contains(""),
         ),
         (
             "g_needcontrib_noauthors",
             graph.GraphParams.if_label_contains(
-                "Needs contributor", show_authors=False
+                "", show_authors=False
             ),
         ),
         (
             "g_needlead_authors",
-            graph.GraphParams.if_label_contains("Needs lead"),
+            graph.GraphParams.if_label_contains(""),
         ),
         (
             "g_needlead_noauthors",
-            graph.GraphParams.if_label_contains("Needs lead", show_authors=False),
+            graph.GraphParams.if_label_contains("", show_authors=False),
         ),
     ):
         f.write(key + " : {\n")
         gmain, gkey = graph.make_graph(prs, gp)
+        dump_dot(key, None, gmain.source)
         f.write(f"    '': [atob('{btoa(gmain.source)}'), atob('{btoa(gkey.source)}')],")
         get_show_pr_ini = gp.get_show_pr
+        description_ini = gp.description
         for author in authors:
             gp.get_show_pr = lambda pr: (
                 pr.author.login != author and get_show_pr_ini(pr)
             )
+            gp.description += f" excluding {author!r}"
             gmain, gkey = graph.make_graph(prs, gp)
+            dump_dot(key, author, gmain.source)
             gp.get_show_pr = get_show_pr_ini
+            gp.description = description_ini
             f.write(
                 f"    '{author}': [atob('{btoa(gmain.source)}'), atob('{btoa(gkey.source)}')],"
             )
@@ -179,12 +209,15 @@ var visprsgraph_src = {
         .fit(true);
 
     function setrenderedgdot(gdot, gdotkey) {
+        console.debug('setrenderedgdot');
         d3.select("#graph").graphviz().renderDot(gdot);
         d3.select("#graph-key").graphviz().renderDot(gdotkey);
     }
     function updaterenderedgdot() {
+        console.debug('updaterenderedgdot');
         var gpair = visprsgraph_src[window.visprsgraph_key][window.visprsgraph_ignoredauthorkey];
         var gdot = gpair[0];
+        console.debug('graph dot source', gdot);
         var gdotkey = gpair[1];
         setrenderedgdot(gdot, gdotkey);
 
@@ -219,7 +252,8 @@ var visprsgraph_src = {
     set_ignore_author();
     """
     )
-    f.write("""</script>
+    f.write(
+        """</script>
 <script>
 function loadDone() {
     document.getElementById("load-in-progress")
@@ -228,6 +262,7 @@ function loadDone() {
 //setTimeout(loadDone, 100);
 loadDone();
 </script>
-</body>""")
+</body>"""
+    )
 
 print(__file__, "OK")
